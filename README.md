@@ -6,4 +6,4 @@
 3. Change the `ConnectionStrings:ApplicationDatabase` and the `Authentication:Secret` in "src/presentation/PublicApi/appsettings.(Development).json" 
 4. Run the app
 
-## Feel free to change the "clean-arch" template for your likings or add other Templates (contribute)
+Feel free to change the "clean-arch" template for your likings or add other Templates (contribute)
