@@ -1,15 +1,20 @@
 import os
 import sys
 import shutil
+import constants
 from os import path
+from helpers import read_config
 
-keyword = "[solutionName]"
-app_name = sys.argv[2]
+app_name = sys.argv[1]
+
 
 #Copying the template
-src = 'templates/'+ sys.argv[1]
-#Change 'dir_dest' to the directory where you want your project to be
-dir_dest = '/home/rrezart/Desktop/'
+try:
+   src = 'templates/'+ sys.argv[2]
+except:
+    src = 'templates/' + read_config(constants.default_template)
+    
+dir_dest = read_config("DESTINATION_OUTPUT") + "\\"
 dest = dir_dest + app_name+'/'
 shutil.copytree(src, dest) 
 
@@ -26,7 +31,7 @@ def change_keywords_in_file(filepath):
     filedata = file.read()
     file.close()
 
-    newdata = filedata.replace(keyword,app_name)
+    newdata = filedata.replace(constants.keyword,app_name)
 
     file = open(filepath,'w')
     file.write(newdata)
@@ -34,26 +39,14 @@ def change_keywords_in_file(filepath):
 
 def change_files_rec(current_path):
     for i in os.listdir(current_path):
-    #TODO:replace the folder or file name whenever the keyword is matched
-        if path.isfile(current_path+i):
-            change_keywords_in_file(current_path+i)
+        new_name = i
+        if constants.keyword in i:
+            new_name = i.replace(constants.keyword,app_name)
+            os.rename(current_path+i,current_path+new_name)
+        if path.isfile(current_path+new_name):
+            change_keywords_in_file(current_path+new_name)
         else:
-            change_files_rec(current_path+i+'/')
-
-
-#Changing solution name
-for f in os.listdir('.'):
-    if file_ext(f) == '.sln':
-        os.rename(f,app_name + '.sln')
-
-
-#Changing clean arch layer directory names and csproj names
-for layer in os.listdir(project_dir_src):
-    layer_path = project_dir_src + layer
-    for layer_f in os.listdir(layer_path):
-        if file_ext(layer_f) == '.csproj':
-            os.rename(layer_path +'/'+ layer_f, layer_path + '/' +app_name+'.'+layer+ '.csproj')
-    os.rename(layer_path, project_dir_src + app_name+'.'+layer)
+            change_files_rec(current_path+new_name+'/')
 
 
 #Recuresively changing all solution name references for all files
@@ -61,7 +54,3 @@ change_files_rec(project_dir)
 
 print('Application created at: '+dest)
 print("Enjoy codeing")
-
-#TODO: Change the algo to dynamicly change the folders and file names to adapt to all posible tempaltes
-
-
